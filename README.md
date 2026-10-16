@@ -103,31 +103,30 @@ The default configuration uses the Ollama provider and `gpt-oss:20b`. The provid
 .
 ├── assets/
 │   └── screenshots/
-│       ├── banking-products.jpg
-│       ├── bddk-regulations.jpg
-│       └── company-research.jpg
-├── documents/                          # Local source corpus; files are not committed
-│   ├── banking_products/
-│   ├── bddk_regulations/
-│   ├── company_research/
-│   └── financial_reports/              # Reserved for future visual/table-aware ingestion
+├── data/
+│   ├── chroma/                         # Generated Chroma index (do not commit)
+│   └── documents/                      # Local source corpus; files are not committed
+│       ├── banking_products/
+│       ├── bddk_regulations/
+│       ├── company_research/
+│       └── financial_reports/
 ├── scripts/
-│   └── fetch_akbank_fees.py
+│   └── fetch_akbank_fees.py            # Fetches and extracts Akbank fee tables
 ├── src/
-│   ├── streamlit_app.py
+│   ├── streamlit_app.py                # Streamlit frontend
 │   └── rag_assistant/
-│       ├── api.py
-│       ├── ask.py
-│       ├── config.py
-│       ├── ingest.py
-│       ├── rag_graph.py
-│       ├── search_hybrid.py
+│       ├── api.py                      # FastAPI endpoints                       
+│       ├── ask.py                      # Terminal-based RAG interface
+│       ├── config.py                   # Environment configuration
+│       ├── ingest.py                   # PDF/JSONL ingestion and indexing
+│       ├── rag_graph.py                # LangGraph retrieve/generate workflow
+│       ├── search_hybrid.py            # Terminal hybrid retrieval experiment
 │       ├── llm/
-│       │   └── factory.py
+│       │   └── factory.py              # LLM provider factory
 │       ├── retrieval/
 │       │   ├── bm25_retriever.py
 │       │   └── hybrid_retriever.py
-│       └── evaluation/
+│       └── evaluation/                 # Retrieval evaluation utilities and dataset
 ├── requirements.txt
 └── README.md
 ```
@@ -178,7 +177,7 @@ Keep `.env` and API keys private; never commit credentials.
 
 ### 3. Add source documents
 
-Download or collect the documents you want to use from the public sources listed below, then place them in the matching folders under `documents/`. The ingestion script recursively reads `*.pdf` and `*.jsonl` files. It does not ingest HTML, Markdown, or `.bak` files.
+Download or collect the documents you want to use from the public sources listed below, then place them in the matching folders under `documents/`. The ingestion script recursively reads `*.pdf` and `*.jsonl` files.
 
 Use the folder categories shown in the repository layout. Keep the original filenames where practical so source metadata remains understandable. For the Akbank fee page, use the page as the source and prepare the fee data in JSONL format; `scripts/fetch_akbank_fees.py` is available as an optional helper for extracting the page into JSONL.
 
@@ -249,7 +248,7 @@ Open the local URL printed by Streamlit (normally `http://localhost:8501`). The 
 
 ## Retrieval strategy comparison
 
-The project compares three retrieval strategies over a 26-question benchmark. Each strategy returns up to 10 chunks. Recall@k measures whether at least one expected relevant record appears in the top k; MRR@10 rewards retrieving the first relevant record nearer to the top.
+The project compares three retrieval strategies over a 26-question benchmark targeting banking products. Each strategy returns up to 10 chunks. Recall@k measures whether at least one expected relevant record appears in the top k; MRR@10 rewards retrieving the first relevant record nearer to the top.
 
 | Strategy | Recall@1 | Recall@3 | Recall@5 | Recall@10 | MRR@10 |
 |---|---:|---:|---:|---:|---:|
